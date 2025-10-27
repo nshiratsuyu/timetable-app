@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>新規ブログ投稿</title>
+</head>
+<body>
+    <h1>新しいブログを書く</h1>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div style="color: {{ 'red' if category == 'error' else 'green' }};">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form method="post">
+        <p>
+            <label>タイトル:<br>
+                <input type="text" name="title" required>
+            </label>
+        </p>
+        <p>
+            <label>本文:<br>
+                <textarea name="body" rows="5" cols="40" required></textarea>
+            </label>
+        </p>
+        <p>
+            <label>投稿者名:<br>
+                <input type="text" name="user_name" required>
+            </label>
+        </p>
+        <p>
+            <button type="submit">投稿する</button>
+        </p>
+    </form>
+
+    <p><a href="{{ url_for('blogs.index') }}">一覧に戻る</a></p>
+</body>
+</html>
