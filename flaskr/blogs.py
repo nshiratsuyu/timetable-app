@@ -45,5 +45,3 @@ def create():
 def detail(blog_id):
     blog = Blog.query.get_or_404(blog_id)
     return render_template('blogs/detail.html', blog=blog)
-
-
