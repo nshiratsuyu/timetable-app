@@ -15,6 +15,7 @@ CLASSES_PATH = os.path.join(BASE_DIR, "classes.json")
 FAVORITES_PATH = os.path.join(BASE_DIR, "favorites.json")
 USERS_PATH = os.path.join(BASE_DIR, "users.json")
 COMMENTS_PATH = os.path.join(BASE_DIR, "comments.json")
+TIMETABLE_PATH = os.path.join(BASE_DIR, "timetable.json")
 
 app = Flask(__name__)
 
@@ -172,6 +173,144 @@ def ai_comment():
     return jsonify({
         "success": True,
         "comment": ai_text
+    })
+
+# =====================
+# 時間割登録API
+# =====================
+@app.route("/api/timetable", methods=["POST"])
+def add_timetable():
+    body = request.get_json()
+    user_id = body["user_id"]
+    class_id = body["class_id"]
+
+    # 授業一覧を読む
+    with open(CLASSES_PATH, encoding="utf-8") as f:
+        classes = json.load(f)
+
+    # 追加したい授業
+    new_class = next(
+    (c for c in classes if c["id"] == class_id),
+    None
+    )
+
+    if not new_class:
+        return jsonify({"error": "class not found"}), 404
+
+
+    # 時間割を読む
+    with open(TIMETABLE_PATH, encoding="utf-8") as f:
+        data = json.load(f)
+
+    # ===== ① 二重登録チェック =====
+    for t in data["timetables"]:
+        if t["user_id"] == user_id and t["class_id"] == class_id:
+            return jsonify({
+                "error": "already registered"
+            }), 400
+
+    # ===== ② 時間かぶりチェック =====
+    for t in data["timetables"]:
+        if t["user_id"] != user_id:
+            continue
+
+        existing_class = next(
+            (c for c in classes if c["id"] == t["class_id"]),
+            None
+        )
+
+        if not existing_class:
+            return jsonify({"error": "class not found"}), 404
+
+        if (
+            existing_class["day"] == new_class["day"]
+            and existing_class["period"] == new_class["period"]
+        ):
+            return jsonify({
+                "error": "time conflict",
+                "conflict_with": {
+                    "id": existing_class["id"],
+                    "name": existing_class["name"],
+                    "day": existing_class["day"],
+                    "period": existing_class["period"]
+                }
+            }), 400
+
+    # ===== ③ 登録処理 =====
+    new_id = len(data["timetables"]) + 1
+    timetable = {
+        "id": new_id,
+        "user_id": user_id,
+        "class_id": class_id
+    }
+
+    data["timetables"].append(timetable)
+
+    with open(TIMETABLE_PATH, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
+    return jsonify({
+        "status": "ok",
+        "timetable": timetable
+    })
+
+# =====================
+# 時間割取得API
+# =====================
+@app.route("/api/timetable", methods=["GET"])
+def get_timetable():
+    user_id = int(request.args.get("user_id"))
+
+    with open(TIMETABLE_PATH, encoding="utf-8") as f:
+        timetables = json.load(f)["timetables"]
+
+    with open(CLASSES_PATH, encoding="utf-8") as f:
+        classes = json.load(f)
+
+    result = []
+
+    for t in timetables:
+        if t["user_id"] != user_id:
+            continue
+
+        class_data = next(
+            (c for c in classes if c["id"] == t["class_id"]),
+            None
+        )
+
+        if class_data:
+            result.append({
+                "class": class_data
+            })
+
+    return jsonify({ "timetable": result })
+
+# =====================
+# 時間割削除
+# =====================
+@app.route("/api/timetable/<int:timetable_id>", methods=["DELETE"])
+def delete_timetable(timetable_id):
+    with open(TIMETABLE_PATH, encoding="utf-8") as f:
+        data = json.load(f)
+
+    before_count = len(data["timetables"])
+
+    data["timetables"] = [
+        t for t in data["timetables"]
+        if t["id"] != timetable_id
+    ]
+
+    # 見つからなかった場合
+    if len(data["timetables"]) == before_count:
+        return jsonify({
+            "error": "timetable not found"
+        }), 404
+
+    with open(TIMETABLE_PATH, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
+    return jsonify({
+        "status": "deleted"
     })
 
 # =====================

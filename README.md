@@ -5,7 +5,7 @@
 - 仮の大学学部学科学年を想定した授業一覧データをCSV → JSONに変換
 - FlaskでAPIサーバーを起動
 - 授業一覧取得APIを実装
-- 授業検索API（keyword）、ログインAPI、お気に入りAPIを実装
+- 授業検索API（keyword）、ログインAPI、お気に入りAPI、時間割登録を実装
 ## API一覧
 ## 授業一覧取得API http://localhost:5002/api/classes
 GET /api/classes
@@ -42,6 +42,39 @@ POST /api/login
         "period": 3,
         "name": "English I",
         "location": "B101"
+      }
+    }
+  ]
+}
+
+### 時間割登録API
+POST /api/timetable
+### リクエスト
+{
+  "user_id": 1,
+  "class_id": 3
+}
+### レスポンス
+{
+  "status": "ok",
+  "timetable": {
+    "id": 1,
+    "user_id": 1,
+    "class_id": 3
+  }
+}
+
+### 時間割取得API
+GET /api/timetable?user_id=1
+### レスポンス
+{
+  "timetable": [
+    {
+      "class": {
+        "id": 3,
+        "name": "...",
+        "day": "Mon",
+        "period": 2
       }
     }
   ]
