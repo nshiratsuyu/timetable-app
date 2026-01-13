@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>自分の時間割</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</head>
+
+<body>
+  <header class="header">
+    <h1>自分の時間割</h1>
+    <nav class="nav">
+      <!-- ホームリンクは削除済み -->
+      <a href="{{ url_for('timetable') }}">自分の時間割</a>
+    </nav>
+  </header>
+
+  <main class="main">
+    <h2>時間割</h2>
+
+    <table class="timetable-table">
+      <tr>
+        <th>時間</th>
+        <th>月</th>
+        <th>火</th>
+        <th>水</th>
+        <th>木</th>
+        <th>金</th>
+      </tr>
+
+      <tr>
+        <td>1限</td>
+        <td class="time-slot" data-time="mon-1"></td>
+        <td class="time-slot" data-time="tue-1"></td>
+        <td class="time-slot" data-time="wed-1"></td>
+        <td class="time-slot" data-time="thu-1"></td>
+        <td class="time-slot" data-time="fri-1"></td>
+      </tr>
+
+      <tr>
+        <td>2限</td>
+        <td class="time-slot" data-time="mon-2"></td>
+        <td class="time-slot" data-time="tue-2"></td>
+        <td class="time-slot" data-time="wed-2"></td>
+        <td class="time-slot" data-time="thu-2"></td>
+        <td class="time-slot" data-time="fri-2"></td>
+      </tr>
+
+      <tr>
+        <td>3限</td>
+        <td class="time-slot" data-time="mon-3"></td>
+        <td class="time-slot" data-time="tue-3"></td>
+        <td class="time-slot" data-time="wed-3"></td>
+        <td class="time-slot" data-time="thu-3"></td>
+        <td class="time-slot" data-time="fri-3"></td>
+      </tr>
+
+      <tr>
+        <td>4限</td>
+        <td class="time-slot" data-time="mon-4"></td>
+        <td class="time-slot" data-time="tue-4"></td>
+        <td class="time-slot" data-time="wed-4"></td>
+        <td class="time-slot" data-time="thu-4"></td>
+        <td class="time-slot" data-time="fri-4"></td>
+      </tr>
+
+      <tr>
+        <td>5限</td>
+        <td class="time-slot" data-time="mon-5"></td>
+        <td class="time-slot" data-time="tue-5"></td>
+        <td class="time-slot" data-time="wed-5"></td>
+        <td class="time-slot" data-time="thu-5"></td>
+        <td class="time-slot" data-time="fri-5"></td>
+      </tr>
+    </table>
+
+    <button id="save-button">保存</button>
+  </main>
+</body>
+</html>
