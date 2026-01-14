@@ -1,12 +1,25 @@
 <!DOCTYPE html>
-<html>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css')}}">
+<html lang="ja">
 <head>
+  <meta charset="UTF-8">
+  <title>ホーム</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
+
 <body>
-    <header>
-      <h1>ミニブログをつくってみよう !</h1>
+  <header class="header">
+  <h1 class="home-title">ホーム</h1>
+  <img src="{{ url_for('static', filename='img/home.png') }}" class="home-illust">
 </header>
-    <p>Let's begin !</p>
+
+
+  <main class="main">
+    <div class="home-links">
+      <a href="{{ url_for('timetable') }}" class="card">📅 自分の時間割</a>
+      <a href="{{ url_for('favorites') }}" class="card">⭐ お気に入り授業</a>
+      <a href="{{ url_for('comments') }}" class="card">💬 コメント</a>
+      <a href="{{ url_for('search_classes') }}" class="card">🔍 授業検索</a>
+    </div>
+  </main>
 </body>
 </html>

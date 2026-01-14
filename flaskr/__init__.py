@@ -11,16 +11,29 @@ def create_app():
 
     db.init_app(app)
 
-    # Blueprint の登録
     from . import blogs
     app.register_blueprint(blogs.blog_bp)
 
-    # ★ タイムテーブル画面のルート（ここが重要）
+    @app.route('/')
+    def home():
+        return render_template('home.html')
+
     @app.route('/timetable')
     def timetable():
         return render_template('timetable.html')
 
-    # DB テーブル作成
+    @app.route('/favorites')
+    def favorites():
+        return "お気に入り授業ページ（仮）"
+
+    @app.route('/comments')
+    def comments():
+        return "コメントページ（仮）"
+
+    @app.route('/search_classes')
+    def search_classes():
+        return "授業検索ページ（仮）"
+
     with app.app_context():
         db.create_all()
 
