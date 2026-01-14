@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>ブログ編集</title>
+</head>
+<body>
+  <h1>ブログを編集</h1>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div style="color: {{ 'red' if category == 'error' else 'green' }};">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <form method="post">
+    <p>
+      <label>タイトル：</label><br>
+      <input type="text" name="title" value="{{ blog.title }}" size="40">
+    </p>
+    <p>
+      <label>本文：</label><br>
+      <textarea name="body" rows="5" cols="40">{{ blog.body }}</textarea>
+    </p>
+    <p>
+      <label>投稿者名：</label><br>
+      <input type="text" name="user_name" value="{{ blog.user_name }}" size="30">
+    </p>
+    <p>
+      <input type="submit" value="更新する">
+      <a href="{{ url_for('blogs.detail', blog_id=blog.id) }}">キャンセル</a>
+    </p>
+  </form>
+</body>
+</html>

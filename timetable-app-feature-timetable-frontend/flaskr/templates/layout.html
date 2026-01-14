@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+ <title>{% block title %}{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css')}}">
+  <script src="{{ url_for('static', filename='js/script.js') }}" defer></script>
+</head>
+<body>
+  <h1>{% block h1 %}{% endblock %}</h1>
+   {% with messages = get_flashed_messages() %}
+     {% if messages %}
+       <ul class="flash-messages">
+         {% for msg in messages %}
+           <li>{{ msg }}</li>
+         {% endfor %}
+       </ul>
+     {% endif %}
+   {% endwith %}
+   
+   {% block content %}
+   {% endblock %}
+
+    <footer>
+        <hr>
+        <p>© 2025 My Blog App</p>
+    </footer>
+
+<div>
+    <input id="picker" type="color">
+  </div>
+</html>

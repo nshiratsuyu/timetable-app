@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css')}}">
+</head>
+<body>
+    <header>
+      <h1>ミニブログを作ってみよう</h1>
+    </header>
+    <p><a href="{{ url_for('blogs.create') }}">新規投稿</a></p>
+  <div>
+    <ul>
+      {% for blog in blogs %} <!-- ループさせてそれぞれ要素を取り出す -->
+        <li>
+          タイトル: <a href="{{ url_for('blogs.detail', blog_id=blog.id) }}">{{ blog.title }}</a>,
+          本文: {{ blog.body }}, 投稿者: {{ blog.user_name }}, 投稿日時: {{ blog.created_at }},
+          <a href="{{ url_for('blogs.edit', blog_id=blog.id) }}">[編集]</a>
+        </li>
+    　{% endfor %}
+    </ul>
+  </div>
+</body>
+</html>
