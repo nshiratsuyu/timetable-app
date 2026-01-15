@@ -4,121 +4,32 @@
   <meta charset="UTF-8">
   <title>自分の時間割</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
-
-  <style>
-    /* ボタンの見た目を整える */
-    .icon-button {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 16px;
-      font-size: 16px;
-      border: none;
-      border-radius: 6px;
-      background-color: #4CAF50;
-      color: white;
-      cursor: pointer;
-      margin-top: 12px;
-    }
-
-    .icon-button:hover {
-      background-color: #45a049;
-    }
-
-    /* 戻るボタンは色を変えてもOK */
-    .back-button {
-      background-color: #555;
-    }
-
-    .back-button:hover {
-      background-color: #444;
-    }
-  </style>
+  <script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
 </head>
-
 <body>
-<header class="header">
-  <h1 class="home-title">時間割</h1>
-</header>
-
+<header class="header"><h1 class="home-title">時間割</h1></header>
 <main class="main">
-  <h2>時間割</h2>
-
-  <table class="timetable-table">
+  <table class="timetable-table" border="1" style="width:100%; border-collapse: collapse;">
     <tr>
-      <th>時間</th>
-      <th>月</th>
-      <th>火</th>
-      <th>水</th>
-      <th>木</th>
-      <th>金</th>
+      <th>時間</th><th>月</th><th>火</th><th>水</th><th>木</th><th>金</th>
     </tr>
-
+    {% for p in [1, 2, 3, 4, 5] %}
     <tr>
-      <td>1限</td>
-      <td class="time-slot" data-time="mon-1"></td>
-      <td class="time-slot" data-time="tue-1"></td>
-      <td class="time-slot" data-time="wed-1"></td>
-      <td class="time-slot" data-time="thu-1"></td>
-      <td class="time-slot" data-time="fri-1"></td>
+      <td>{{ p }}限</td>
+      {% for d in ['月', '火', '水', '木', '金'] %}
+      <td style="height: 80px; text-align: center;">
+        {% for lesson in lessons %}
+          {% if lesson.day_of_week == d and lesson.period == p %}
+            <strong>{{ lesson.title }}</strong><br><small>{{ lesson.teacher }}</small>
+          {% endif %}
+        {% endfor %}
+      </td>
+      {% endfor %}
     </tr>
-
-    <tr>
-      <td>2限</td>
-      <td class="time-slot" data-time="mon-2"></td>
-      <td class="time-slot" data-time="tue-2"></td>
-      <td class="time-slot" data-time="wed-2"></td>
-      <td class="time-slot" data-time="thu-2"></td>
-      <td class="time-slot" data-time="fri-2"></td>
-    </tr>
-
-    <tr>
-      <td>3限</td>
-      <td class="time-slot" data-time="mon-3"></td>
-      <td class="time-slot" data-time="tue-3"></td>
-      <td class="time-slot" data-time="wed-3"></td>
-      <td class="time-slot" data-time="thu-3"></td>
-      <td class="time-slot" data-time="fri-3"></td>
-    </tr>
-
-    <tr>
-      <td>4限</td>
-      <td class="time-slot" data-time="mon-4"></td>
-      <td class="time-slot" data-time="tue-4"></td>
-      <td class="time-slot" data-time="wed-4"></td>
-      <td class="time-slot" data-time="thu-4"></td>
-      <td class="time-slot" data-time="fri-4"></td>
-    </tr>
-
-    <tr>
-      <td>5限</td>
-      <td class="time-slot" data-time="mon-5"></td>
-      <td class="time-slot" data-time="tue-5"></td>
-      <td class="time-slot" data-time="wed-5"></td>
-      <td class="time-slot" data-time="thu-5"></td>
-      <td class="time-slot" data-time="fri-5"></td>
-    </tr>
+    {% endfor %}
   </table>
-
-  <!-- 保存ボタン（💾） -->
-  <button id="save-button" class="icon-button">
-    💾 保存
-  </button>
-
-  <!-- 戻るボタン（←） -->
-  <button id="back-home-button" class="icon-button back-button">
-    ← ホームに戻る
-  </button>
-
+  <button id="save-button" class="icon-button" style="margin-top:20px;">💾 保存</button>
+  <button onclick="window.location.href='{{ url_for('home') }}'">← ホームに戻る</button>
 </main>
-
-<!-- 戻るボタンの動作 -->
-<script>
-  document.getElementById("back-home-button").addEventListener("click", function() {
-    window.location.href = "{{ url_for('home') }}";
-  });
-</script>
-
 </body>
 </html>

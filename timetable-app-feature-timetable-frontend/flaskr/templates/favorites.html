@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>お気に入り授業</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header class="header"><h1>⭐ お気に入り授業</h1></header>
+    <main class="main">
+        <p>ここに保存した授業が表示されます。</p>
+        <button onclick="window.location.href='{{ url_for('home') }}'">← ホームに戻る</button>
+    </main>
+</body>
+</html>

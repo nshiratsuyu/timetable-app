@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>みんなのコメント</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header class="header"><h1>💬 授業のコメント</h1></header>
+    <main class="main">
+        <p>ここにみんなのコメントが表示されます。</p>
+        <button onclick="window.location.href='{{ url_for('home') }}'">← ホームに戻る</button>
+    </main>
+</body>
+</html>

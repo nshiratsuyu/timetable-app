@@ -1,32 +1,36 @@
-from flaskr import db
+from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
-class Blog(db.Model):
-    __tablename__ = 'blogs'
+db = SQLAlchemy()
 
+class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.Text, nullable=False)
-    body = db.Column(db.Text, nullable=False)
-    user_name = db.Column(db.Text, nullable=False)
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    password = db.Column(db.String(120), nullable=False)
 
-    def __repr__(self):
-        return f'<Blog {self.title} by {self.user_name}>'
+class Lesson(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(100), nullable=False)
+    teacher = db.Column(db.String(100))
+    day_of_week = db.Column(db.String(10)) 
+    period = db.Column(db.Integer)
 
-    def validate(self):
-        """入力内容のバリデーションを行い、エラーを返す"""
-        errors = []
-        if not self.title or self.title.strip() == "":
-            errors.append("タイトルを入力してください。")
-        elif len(self.title) > 100:
-            errors.append("タイトルは100文字以内で入力してください。")
+class Comment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    content = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.now)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    lesson_id = db.Column(db.Integer, db.ForeignKey('lesson.id'))
 
-        if not self.body or self.body.strip() == "":
-            errors.append("本文を入力してください。")
+class Favorite(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    lesson_id = db.Column(db.Integer, db.ForeignKey('lesson.id'))
 
-        if not self.user_name or self.user_name.strip() == "":
-            errors.append("投稿者名を入力してください。")
-        elif len(self.user_name) > 50:
-            errors.append("投稿者名は50文字以内で入力してください。")
+    # ... (上のコード)
 
-        return errors
+# ↓↓↓ これを追加 ↓↓↓
+class Timetable(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    lesson_id = db.Column(db.Integer, db.ForeignKey('lesson.id'))

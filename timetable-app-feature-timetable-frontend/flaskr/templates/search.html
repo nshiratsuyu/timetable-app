@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>授業検索</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        /* 検索画面専用のスタイル */
+        .search-box {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .search-input {
+            padding: 10px;
+            width: 60%;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        .search-btn {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .result-list {
+            list-style: none;
+            padding: 0;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .result-item {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .add-btn {
+            margin-top: 5px; 
+            padding: 5px 10px; 
+            background: #008CBA; 
+            color: white; 
+            border: none; 
+            border-radius: 3px; 
+            cursor: pointer;
+        }
+        .add-btn:hover {
+            background: #007bb5;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>🔍 授業検索</h1>
+    </header>
+
+    <main class="main">
+        <div class="search-box">
+            <input type="text" id="keyword" class="search-input" placeholder="授業名を入力（例: 数学）">
+            <button id="do-search" class="search-btn">検索</button>
+        </div>
+
+        <div id="loading" style="display:none; text-align:center;">検索中...</div>
+        <ul id="results" class="result-list"></ul>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <button onclick="window.location.href='{{ url_for('home') }}'" class="icon-button" style="background:#555;">← ホームに戻る</button>
+        </div>
+    </main>
+
+    <script>
+        // ▼▼▼ JavaScript ここから ▼▼▼
+        
+        // 1. 検索ボタンを押したときの動作
+        const searchBtn = document.getElementById('do-search');
+        if (searchBtn) {
+            searchBtn.addEventListener('click', searchClasses);
+        }
+
+        // 2. 検索を実行する関数
+        function searchClasses() {
+            const keyword = document.getElementById('keyword').value;
+            const resultsList = document.getElementById('results');
+            const loading = document.getElementById('loading');
+
+            // 前回の結果を消して、ロード中を表示
+            resultsList.innerHTML = '';
+            loading.style.display = 'block';
+
+            // APIに問い合わせ
+            fetch(`/api/classes?keyword=${keyword}`)
+                .then(response => response.json())
+                .then(data => {
+                    loading.style.display = 'none';
+                    
+                    if (!data.classes || data.classes.length === 0) {
+                        resultsList.innerHTML = '<p style="text-align:center;">見つかりませんでした</p>';
+                        return;
+                    }
+
+                    // 結果をリスト表示
+                    data.classes.forEach(lesson => {
+                        const li = document.createElement('li');
+                        li.className = 'result-item';
+                        // HTMLの中に「追加ボタン」を埋め込む
+                        li.innerHTML = `
+                            <strong>${lesson.name}</strong>
+                            <br>
+                            <small>${lesson.day}曜 ${lesson.period}限 | ${lesson.teacher}</small>
+                            <br>
+                            <button class="add-btn" onclick="addTimetable(${lesson.id})">
+                                時間割に追加
+                            </button>
+                        `;
+                        resultsList.appendChild(li);
+                    });
+                })
+                .catch(err => {
+                    console.error(err);
+                    loading.style.display = 'none';
+                    alert('検索に失敗しました。サーバーが動いているか確認してください。');
+                });
+        }
+
+        // 3. 時間割に追加する関数（ここが重要！）
+        function addTimetable(id) {
+            fetch('/api/timetable', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ class_id: id })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    // エラーレスポンスの場合もJSONを解析してメッセージを出す
+                    return response.json().then(errData => {
+                        throw new Error(errData.message || 'エラーが発生しました');
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                alert(data.message); // 「追加しました！」
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert(error.message); // 「既に登録されています」などがここに出る
+            });
+        }
+    </script>
+</body>
+</html>
