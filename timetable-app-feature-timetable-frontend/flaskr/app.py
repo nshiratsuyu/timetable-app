@@ -1,7 +1,7 @@
 import sys
 import os
 import json
-import pdfplumber
+import base64
 from flask import Flask, request, jsonify, session, render_template, redirect, url_for, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 # ▼▼▼ 追加：AIと環境変数のためのライブラリ ▼▼▼
@@ -264,39 +264,29 @@ def ai_comment():
         "comment": ai_text
     })
 # ==================================================
-#  5. PDFアップロード & AI解析機能
+#  5. 画像アップロード & AI解析機能（GPT-4o-mini Vision）
 # ==================================================
 @app.route('/upload', methods=['GET', 'POST'])
-def upload_pdf():
+def upload_image():
     if request.method == 'GET':
         return render_template('upload.html')
     
     # POST（ファイルが送られてきた時）
-    if 'pdf_file' not in request.files:
+    if 'image_file' not in request.files:
         flash("ファイルがありません", "error")
         return redirect(request.url)
     
-    file = request.files['pdf_file']
+    file = request.files['image_file']
     if file.filename == '':
         flash("ファイルを選択してください", "error")
         return redirect(request.url)
 
     if file:
         try:
-            # 1. PDFから文字を抽出する
-            text_content = ""
-            with pdfplumber.open(file) as pdf:
-                # ページ数が多すぎるとAIがパンクするので、最初の2ページだけ読む制限をかけます
-                # （必要なら range(len(pdf.pages)) に変えれば全ページ読みます）
-                for i in range(min(2, len(pdf.pages))): 
-                    page_text = pdf.pages[i].extract_text()
-                    if page_text:
-                        text_content += page_text + "\n"
-
-            print("--- PDF抽出テキスト ---")
-            print(text_content[:200] + "...") # ログ確認用
-
-            # 2. OpenAIに投げて構造化データ(JSON)にしてもらう
+            # 1. 画像をBase64データ（文字）に変換する
+            image_data = base64.b64encode(file.read()).decode('utf-8')
+            
+            # 2. OpenAI (GPT-4o-mini) に画像を見せる
             api_key = os.getenv("OPENAI_API_KEY")
             if not api_key:
                 flash("AIの設定(APIキー)がないため解析できません。", "error")
@@ -304,27 +294,38 @@ def upload_pdf():
 
             client = OpenAI(api_key=api_key)
             
-            prompt = f"""
-            以下のテキストは大学の時間割PDFから抽出したものです。
-            ここから「授業情報」を抜き出し、以下のJSON形式のリストで出力してください。
+            # AIへの命令（プロンプト）
+            prompt_text = """
+            この画像は大学の時間割表です。
+            画像から授業の情報を読み取り、以下のJSON形式のリストのみを出力してください。
             
             [
-              {{ "title": "授業名", "teacher": "教員名(不明なら'不明')", "day": "月/火/水/木/金/土", "period": 1〜6の数字 }}
+              { "title": "授業名", "teacher": "教員名(不明なら'不明')", "day": "月/火/水/木/金/土", "period": 1〜6の数字 }
             ]
 
             ※ 注意:
-            - JSONデータのみを返してください。余計な説明は不要です。
-            - 曜日や時限が不明確なものは除外してください。
-            - 曜日は漢字1文字（月、火...）にしてください。
-
-            --- PDFテキスト ---
-            {text_content}
+            - JSONデータのみを返してください。余計な説明は一切不要です。
+            - 曜日や時限がはっきり読み取れるものだけを抽出してください。
+            - 曜日は漢字1文字（月、火...）に統一してください。
             """
 
             response = client.chat.completions.create(
-                model="gpt-3.5-turbo", # 大量のテキストなら gpt-4o-mini 推奨ですが一旦これで
-                messages=[{"role": "user", "content": prompt}],
-                temperature=0
+                model="gpt-4o-mini",  # 画像が読めるモデルを使用
+                messages=[
+                    {
+                        "role": "user",
+                        "content": [
+                            {"type": "text", "text": prompt_text},
+                            {
+                                "type": "image_url",
+                                "image_url": {
+                                    "url": f"data:image/jpeg;base64,{image_data}"
+                                }
+                            }
+                        ]
+                    }
+                ],
+                max_tokens=1000
             )
 
             ai_response = response.choices[0].message.content
@@ -339,9 +340,8 @@ def upload_pdf():
             
             count = 0
             for item in extracted_lessons:
-                # 必須項目があるかチェック
                 if 'title' in item and 'day' in item and 'period' in item:
-                    # 同じ授業が既にないか簡易チェック（タイトルと曜日時限が一致ならスキップ）
+                    # 重複チェック
                     exists = Lesson.query.filter_by(
                         title=item['title'], 
                         day_of_week=item['day'], 
@@ -360,12 +360,12 @@ def upload_pdf():
             
             db.session.commit()
             
-            flash(f"✅ 解析完了！ {count} 件の授業を新しく登録しました。", "success")
-            return redirect(url_for('search_classes')) # 検索画面に飛ばして結果を見せる
+            flash(f"✅ 解析完了！ {count} 件の授業を登録しました。", "success")
+            return redirect(url_for('search_classes'))
 
         except Exception as e:
             print(f"Error: {e}")
-            flash("PDFの解析中にエラーが発生しました。ファイル形式が複雑すぎる可能性があります。", "error")
+            flash("画像の解析中にエラーが発生しました。別の画像を試してください。", "error")
             return redirect(request.url)
 
 # ==================================================

@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>時間割PDF登録</title>
+    <title>時間割画像登録</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <style>
         .upload-box {
@@ -38,34 +38,19 @@
     </style>
 </head>
 <body>
-    <header class="header"><h1>📄 PDFから時間割を一括登録</h1></header>
+    <header class="header"><h1>📷 時間割画像から一括登録</h1></header>
     <main class="main">
         <div class="upload-box">
-            <p>大学の授業一覧が載っているPDFをアップロードしてください。<br>AIが自動で読み取ってリストに追加します。</p>
+            <p>スマホで撮影した時間割や、スクショ画像をアップロードしてください。<br>AIが自動で読み取ってリストに追加します。</p>
             
-            <form action="{{ url_for('upload_pdf') }}" method="post" enctype="multipart/form-data" onsubmit="showLoading()">
-                <input type="file" name="pdf_file" accept=".pdf" required style="font-size: 16px;">
+            <form action="{{ url_for('upload_image') }}" method="post" enctype="multipart/form-data" onsubmit="showLoading()">
+                <input type="file" name="image_file" accept="image/*" required style="font-size: 16px;">
                 <br>
-                <button type="submit" class="upload-btn">🚀 解析して登録する</button>
+                <button type="submit" class="upload-btn">🚀 画像を解析して登録</button>
             </form>
-
             <div id="loader" class="loader"></div>
-            <p id="loading-text" style="display:none;">AIがPDFを解析中...<br>これには少し時間がかかります</p>
+            <p id="loading-text" style="display:none;">AIが画像を解析中...<br>これには少し時間がかかります</p>
         </div>
 
         <div style="text-align: center; margin-top: 30px;">
-            <button onclick="window.location.href='{{ url_for('home') }}'" class="icon-button" style="background:#555;">← ホームに戻る</button>
-        </div>
-    </main>
-
-    <script>
-        function showLoading() {
-            document.getElementById('loader').style.display = 'block';
-            document.getElementById('loading-text').style.display = 'block';
-            // ボタンを無効化して連打防止
-            document.querySelector('.upload-btn').disabled = true;
-            document.querySelector('.upload-btn').innerText = "処理中...";
-        }
-    </script>
-</body>
-</html>
+            <button onclick="window.location.href='{{ url_for('home') }}'" class="
