@@ -5,7 +5,8 @@
     "day": "月",
     "period": 1,
     "name": "アルゴリズム入門",
-    "location": "A101"
+    "location": "A101",
+    "teacher": "佐藤"
   },
   {
     "id": 2,
@@ -13,7 +14,8 @@
     "day": "月",
     "period": 2,
     "name": "アルゴリズム入門",
-    "location": "A101"
+    "location": "A101",
+    "teacher": "佐藤"
   },
   {
     "id": 3,
@@ -21,7 +23,8 @@
     "day": "月",
     "period": 3,
     "name": "English I",
-    "location": "B101"
+    "location": "B101",
+    "teacher": "Mike"
   },
   {
     "id": 4,
@@ -29,7 +32,8 @@
     "day": "月",
     "period": 4,
     "name": "ジェンダー学",
-    "location": "C101"
+    "location": "C101",
+    "teacher": "鈴木"
   },
   {
     "id": 5,
@@ -37,7 +41,8 @@
     "day": "火",
     "period": 2,
     "name": "プログラミング基礎",
-    "location": "A101"
+    "location": "A101",
+    "teacher": "佐藤"
   },
   {
     "id": 6,
@@ -45,7 +50,8 @@
     "day": "火",
     "period": 3,
     "name": "計算機数学",
-    "location": "A102"
+    "location": "A102",
+    "teacher": "高橋"
   },
   {
     "id": 7,
@@ -53,7 +59,8 @@
     "day": "火",
     "period": 4,
     "name": "計算機数学",
-    "location": "A102"
+    "location": "A102",
+    "teacher": "高橋"
   },
   {
     "id": 8,
@@ -61,7 +68,8 @@
     "day": "火",
     "period": 5,
     "name": "女性学",
-    "location": "C101"
+    "location": "C101",
+    "teacher": "田中"
   },
   {
     "id": 9,
@@ -69,7 +77,8 @@
     "day": "水",
     "period": 1,
     "name": "コンピュータ概論a",
-    "location": "A101"
+    "location": "A101",
+    "teacher": "伊藤"
   },
   {
     "id": 10,
@@ -77,7 +86,8 @@
     "day": "水",
     "period": 2,
     "name": "自然言語処理",
-    "location": "A101"
+    "location": "A101",
+    "teacher": "伊藤"
   },
   {
     "id": 11,
@@ -85,7 +95,8 @@
     "day": "水",
     "period": 4,
     "name": "システム運用",
-    "location": "A101"
+    "location": "A101",
+    "teacher": "伊藤"
   },
   {
     "id": 12,
@@ -93,7 +104,8 @@
     "day": "水",
     "period": 5,
     "name": "教職概論",
-    "location": "C102"
+    "location": "C102",
+    "teacher": "渡辺"
   },
   {
     "id": 13,
@@ -101,7 +113,8 @@
     "day": "木",
     "period": 1,
     "name": "コンピュータ概論b",
-    "location": "A101"
+    "location": "A101",
+    "teacher": "伊藤"
   },
   {
     "id": 14,
@@ -109,7 +122,8 @@
     "day": "木",
     "period": 2,
     "name": "セミナー",
-    "location": "A101"
+    "location": "A101",
+    "teacher": "山本"
   },
   {
     "id": 15,
@@ -117,7 +131,8 @@
     "day": "木",
     "period": 2,
     "name": "離散数学",
-    "location": "A102"
+    "location": "A102",
+    "teacher": "中村"
   },
   {
     "id": 16,
@@ -125,7 +140,8 @@
     "day": "木",
     "period": 5,
     "name": "基礎デザイン",
-    "location": "A101"
+    "location": "A101",
+    "teacher": "加藤"
   },
   {
     "id": 17,
@@ -133,7 +149,8 @@
     "day": "金",
     "period": 1,
     "name": "フーリエ解析",
-    "location": "A101"
+    "location": "A101",
+    "teacher": "中村"
   },
   {
     "id": 18,
@@ -141,7 +158,8 @@
     "day": "金",
     "period": 2,
     "name": "確率統計",
-    "location": "A101"
+    "location": "A101",
+    "teacher": "中村"
   },
   {
     "id": 19,
@@ -149,7 +167,8 @@
     "day": "金",
     "period": 3,
     "name": "メディア概論",
-    "location": "A101"
+    "location": "A101",
+    "teacher": "小林"
   },
   {
     "id": 20,
@@ -157,7 +176,8 @@
     "day": "金",
     "period": 4,
     "name": "メディア概論",
-    "location": "A101"
+    "location": "A101",
+    "teacher": "小林"
   },
   {
     "id": 21,
@@ -165,7 +185,8 @@
     "day": "月",
     "period": 1,
     "name": "アルゴリズム入門",
-    "location": "A101"
+    "location": "A101",
+    "teacher": "佐藤"
   },
   {
     "id": 22,
@@ -173,7 +194,8 @@
     "day": "月",
     "period": 2,
     "name": "アルゴリズム入門",
-    "location": "A101"
+    "location": "A101",
+    "teacher": "佐藤"
   },
   {
     "id": 23,
@@ -181,7 +203,8 @@
     "day": "月",
     "period": 3,
     "name": "English I",
-    "location": "B101"
+    "location": "B101",
+    "teacher": "Mike"
   },
   {
     "id": 24,
@@ -189,7 +212,8 @@
     "day": "月",
     "period": 4,
     "name": "ジェンダー学",
-    "location": "C101"
+    "location": "C101",
+    "teacher": "鈴木"
   },
   {
     "id": 25,
@@ -197,7 +221,8 @@
     "day": "火",
     "period": 2,
     "name": "プログラミング基礎",
-    "location": "A101"
+    "location": "A101",
+    "teacher": "佐藤"
   },
   {
     "id": 26,
@@ -205,7 +230,8 @@
     "day": "火",
     "period": 3,
     "name": "線形代数学",
-    "location": "A102"
+    "location": "A102",
+    "teacher": "高橋"
   },
   {
     "id": 27,
@@ -213,7 +239,8 @@
     "day": "火",
     "period": 4,
     "name": "線形代数学",
-    "location": "A102"
+    "location": "A102",
+    "teacher": "高橋"
   },
   {
     "id": 28,
@@ -221,7 +248,8 @@
     "day": "火",
     "period": 5,
     "name": "女性学",
-    "location": "C101"
+    "location": "C101",
+    "teacher": "田中"
   },
   {
     "id": 29,
@@ -229,7 +257,8 @@
     "day": "水",
     "period": 1,
     "name": "コンピュータ概論a",
-    "location": "A101"
+    "location": "A101",
+    "teacher": "伊藤"
   },
   {
     "id": 30,
@@ -237,7 +266,8 @@
     "day": "水",
     "period": 2,
     "name": "自然言語処理",
-    "location": "A101"
+    "location": "A101",
+    "teacher": "伊藤"
   },
   {
     "id": 31,
@@ -245,7 +275,8 @@
     "day": "水",
     "period": 4,
     "name": "システム運用",
-    "location": "A101"
+    "location": "A101",
+    "teacher": "伊藤"
   },
   {
     "id": 32,
@@ -253,7 +284,8 @@
     "day": "水",
     "period": 5,
     "name": "教職概論",
-    "location": "C102"
+    "location": "C102",
+    "teacher": "渡辺"
   },
   {
     "id": 33,
@@ -261,7 +293,8 @@
     "day": "木",
     "period": 1,
     "name": "コンピュータ概論b",
-    "location": "A101"
+    "location": "A101",
+    "teacher": "伊藤"
   },
   {
     "id": 34,
@@ -269,7 +302,8 @@
     "day": "木",
     "period": 2,
     "name": "セミナー",
-    "location": "A101"
+    "location": "A101",
+    "teacher": "山本"
   },
   {
     "id": 35,
@@ -277,7 +311,8 @@
     "day": "木",
     "period": 2,
     "name": "数値解析学",
-    "location": "A102"
+    "location": "A102",
+    "teacher": "中村"
   },
   {
     "id": 36,
@@ -285,7 +320,8 @@
     "day": "木",
     "period": 5,
     "name": "基礎デザイン",
-    "location": "A101"
+    "location": "A101",
+    "teacher": "加藤"
   },
   {
     "id": 37,
@@ -293,7 +329,8 @@
     "day": "金",
     "period": 1,
     "name": "フーリエ解析",
-    "location": "A101"
+    "location": "A101",
+    "teacher": "中村"
   },
   {
     "id": 38,
@@ -301,7 +338,8 @@
     "day": "金",
     "period": 2,
     "name": "確率統計",
-    "location": "A101"
+    "location": "A101",
+    "teacher": "中村"
   },
   {
     "id": 39,
@@ -309,7 +347,8 @@
     "day": "金",
     "period": 3,
     "name": "メディア概論",
-    "location": "A101"
+    "location": "A101",
+    "teacher": "小林"
   },
   {
     "id": 40,
@@ -317,6 +356,7 @@
     "day": "金",
     "period": 4,
     "name": "メディア概論",
-    "location": "A101"
+    "location": "A101",
+    "teacher": "小林"
   }
 ]

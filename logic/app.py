@@ -25,7 +25,13 @@ app = Flask(__name__)
 def generate_ai_comment(class_info):
     prompt = f"""
 あなたは大学生向けの履修アドバイザーです。
-次の授業を含む時間割について、前向きなコメントを1〜2文で書いてください。
+
+次の授業を含む時間割について、
+以下の観点のうち1点以上に触れて、
+前向きなコメントを1〜3文で書いてください。
+・忙しさのバランス
+・重要な基礎科目である可能性
+・時間割全体の一貫性
 
 授業名: {class_info["name"]}
 """
@@ -124,6 +130,33 @@ def add_favorite():
     return jsonify({"status": "ok"})
 
 # =====================
+# お気に入り削除API
+# =====================
+@app.route("/api/favorites/<int:favorite_id>", methods=["DELETE"])
+def delete_favorite(favorite_id):
+    with open(FAVORITES_PATH, encoding="utf-8") as f:
+        data = json.load(f)
+
+    before_count = len(data["favorites"])
+
+    data["favorites"] = [
+        fav for fav in data["favorites"]
+        if fav["id"] != favorite_id
+    ]
+
+    if len(data["favorites"]) == before_count:
+        return jsonify({
+            "error": "favorite not found"
+        }), 404
+
+    with open(FAVORITES_PATH, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
+    return jsonify({
+        "status": "deleted"
+    })
+
+# =====================
 # コメントAPI
 # =====================
 @app.route("/api/comments", methods=["GET"])
@@ -156,6 +189,34 @@ def add_comment():
         json.dump(data, f, ensure_ascii=False, indent=2)
 
     return jsonify({"status": "ok"})
+
+# =====================
+# コメント削除API
+# =====================
+@app.route("/api/comments/<int:comment_id>", methods=["DELETE"])
+def delete_comment(comment_id):
+    with open(COMMENTS_PATH, encoding="utf-8") as f:
+        data = json.load(f)
+
+    before_count = len(data["comments"])
+
+    data["comments"] = [
+        c for c in data["comments"]
+        if c["id"] != comment_id
+    ]
+
+    # 見つからなかった場合
+    if len(data["comments"]) == before_count:
+        return jsonify({
+            "error": "comment not found"
+        }), 404
+
+    with open(COMMENTS_PATH, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
+    return jsonify({
+        "status": "deleted"
+    })
 
 # =====================
 # AIコメントAPI
