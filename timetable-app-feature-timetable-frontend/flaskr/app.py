@@ -1,6 +1,8 @@
 import sys
 import os
-from flask import Flask, request, jsonify, session, render_template
+import json
+import pdfplumber
+from flask import Flask, request, jsonify, session, render_template, redirect, url_for, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 # ▼▼▼ 追加：AIと環境変数のためのライブラリ ▼▼▼
 from openai import OpenAI
@@ -89,11 +91,67 @@ def favorites():
     my_favorites = Favorite.query.all() 
     return render_template('favorites.html', favorites=my_favorites)
 
-# 4. コメント画面（comments.html）
-@app.route('/comments')
+#  4. コメント画面（機能追加版）
+# ==================================================
+@app.route('/comments', methods=['GET', 'POST'])
 def comments():
-    all_comments = Comment.query.all()
-    return render_template('comments.html', comments=all_comments)
+    # 本来は session['user_id'] ですが、今はテスト用に 1 で固定
+    current_user_id = 1
+
+    if request.method == 'POST':
+        lesson_id = request.form.get('lesson_id')
+        content = request.form.get('content')
+
+        # ▼▼▼ 追加機能1：NGワードチェック（自主規制） ▼▼▼
+        ng_words = ["最悪", "うざい", "死ね", "バカ", "アホ", "辞めろ", "無能"]
+        
+        # もしNGワードが含まれていたら
+        if any(word in content for word in ng_words):
+            flash("⚠️ 攻撃的または不適切な言葉が含まれているため投稿できません。", "error")
+            return redirect(url_for('comments'))
+        # ▲▲▲ 追加機能1 終わり ▲▲▲
+
+        if lesson_id and content:
+            new_comment = Comment(
+                user_id=current_user_id,
+                lesson_id=lesson_id,
+                content=content
+            )
+            db.session.add(new_comment)
+            db.session.commit()
+            flash("✅ コメントを投稿しました！", "success") # 成功メッセージ
+        
+        return redirect(url_for('comments'))
+
+    # 取得処理
+    all_comments = Comment.query.order_by(Comment.created_at.desc()).all()
+    all_lessons = Lesson.query.all()
+    lesson_map = {lesson.id: lesson.title for lesson in all_lessons}
+
+    return render_template('comments.html', 
+                           comments=all_comments, 
+                           lessons=all_lessons,
+                           lesson_map=lesson_map,
+                           current_user_id=current_user_id) # HTML側で判定するために渡す
+
+# ▼▼▼ 追加機能2：削除機能 ▼▼▼
+@app.route('/comments/<int:comment_id>/delete', methods=['POST'])
+def delete_comment(comment_id):
+    # 削除したいコメントをDBから探す
+    comment = Comment.query.get_or_404(comment_id)
+    
+    # ログイン中のユーザーID（今は1固定）
+    current_user_id = 1 
+
+    # 自分のコメントかチェック
+    if comment.user_id == current_user_id:
+        db.session.delete(comment)
+        db.session.commit()
+        flash("🗑️ コメントを削除しました。", "success")
+    else:
+        flash("⚠️ 他人のコメントは削除できません。", "error")
+
+    return redirect(url_for('comments'))
 
 # 5. 授業検索画面（search.html）
 @app.route('/search')
@@ -205,6 +263,110 @@ def ai_comment():
         "success": True,
         "comment": ai_text
     })
+# ==================================================
+#  5. PDFアップロード & AI解析機能
+# ==================================================
+@app.route('/upload', methods=['GET', 'POST'])
+def upload_pdf():
+    if request.method == 'GET':
+        return render_template('upload.html')
+    
+    # POST（ファイルが送られてきた時）
+    if 'pdf_file' not in request.files:
+        flash("ファイルがありません", "error")
+        return redirect(request.url)
+    
+    file = request.files['pdf_file']
+    if file.filename == '':
+        flash("ファイルを選択してください", "error")
+        return redirect(request.url)
+
+    if file:
+        try:
+            # 1. PDFから文字を抽出する
+            text_content = ""
+            with pdfplumber.open(file) as pdf:
+                # ページ数が多すぎるとAIがパンクするので、最初の2ページだけ読む制限をかけます
+                # （必要なら range(len(pdf.pages)) に変えれば全ページ読みます）
+                for i in range(min(2, len(pdf.pages))): 
+                    page_text = pdf.pages[i].extract_text()
+                    if page_text:
+                        text_content += page_text + "\n"
+
+            print("--- PDF抽出テキスト ---")
+            print(text_content[:200] + "...") # ログ確認用
+
+            # 2. OpenAIに投げて構造化データ(JSON)にしてもらう
+            api_key = os.getenv("OPENAI_API_KEY")
+            if not api_key:
+                flash("AIの設定(APIキー)がないため解析できません。", "error")
+                return redirect(request.url)
+
+            client = OpenAI(api_key=api_key)
+            
+            prompt = f"""
+            以下のテキストは大学の時間割PDFから抽出したものです。
+            ここから「授業情報」を抜き出し、以下のJSON形式のリストで出力してください。
+            
+            [
+              {{ "title": "授業名", "teacher": "教員名(不明なら'不明')", "day": "月/火/水/木/金/土", "period": 1〜6の数字 }}
+            ]
+
+            ※ 注意:
+            - JSONデータのみを返してください。余計な説明は不要です。
+            - 曜日や時限が不明確なものは除外してください。
+            - 曜日は漢字1文字（月、火...）にしてください。
+
+            --- PDFテキスト ---
+            {text_content}
+            """
+
+            response = client.chat.completions.create(
+                model="gpt-3.5-turbo", # 大量のテキストなら gpt-4o-mini 推奨ですが一旦これで
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0
+            )
+
+            ai_response = response.choices[0].message.content
+            # AIが ```json ... ``` のようにマークダウンをつける場合があるので削除
+            ai_response = ai_response.replace("```json", "").replace("```", "").strip()
+
+            print("--- AI解析結果 ---")
+            print(ai_response)
+
+            # 3. JSONをPythonのリストに変換してDBに登録
+            extracted_lessons = json.loads(ai_response)
+            
+            count = 0
+            for item in extracted_lessons:
+                # 必須項目があるかチェック
+                if 'title' in item and 'day' in item and 'period' in item:
+                    # 同じ授業が既にないか簡易チェック（タイトルと曜日時限が一致ならスキップ）
+                    exists = Lesson.query.filter_by(
+                        title=item['title'], 
+                        day_of_week=item['day'], 
+                        period=item['period']
+                    ).first()
+                    
+                    if not exists:
+                        new_lesson = Lesson(
+                            title=item['title'],
+                            teacher=item.get('teacher', '不明'),
+                            day_of_week=item['day'],
+                            period=int(item['period'])
+                        )
+                        db.session.add(new_lesson)
+                        count += 1
+            
+            db.session.commit()
+            
+            flash(f"✅ 解析完了！ {count} 件の授業を新しく登録しました。", "success")
+            return redirect(url_for('search_classes')) # 検索画面に飛ばして結果を見せる
+
+        except Exception as e:
+            print(f"Error: {e}")
+            flash("PDFの解析中にエラーが発生しました。ファイル形式が複雑すぎる可能性があります。", "error")
+            return redirect(request.url)
 
 # ==================================================
 #  起動設定

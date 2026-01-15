@@ -4,12 +4,117 @@
     <meta charset="UTF-8">
     <title>みんなのコメント</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        /* (これまでのCSSはそのまま) */
+        .comment-container { max-width: 800px; margin: 0 auto; }
+        .comment-form { background-color: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 30px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; }
+        .submit-btn { background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; width: 100%; }
+        .submit-btn:hover { background-color: #45a049; }
+        .comment-list { list-style: none; padding: 0; }
+        .comment-item { background: white; border: 1px solid #eee; border-radius: 8px; padding: 15px; margin-bottom: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .comment-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9em; color: #555; border-bottom: 1px dashed #eee; padding-bottom: 5px; }
+        .class-name { font-weight: bold; color: #007bff; background-color: #e7f1ff; padding: 2px 6px; border-radius: 4px; }
+        .comment-body { font-size: 1.1em; line-height: 1.5; white-space: pre-wrap; }
+        
+        /* ▼▼▼ 追加：通知メッセージのスタイル ▼▼▼ */
+        .flash-messages { margin-bottom: 20px; }
+        .flash-message { padding: 10px; border-radius: 5px; margin-bottom: 10px; font-weight: bold; }
+        .flash-error { background-color: #ffebee; color: #c62828; border: 1px solid #ffcdd2; }
+        .flash-success { background-color: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
+
+        /* ▼▼▼ 追加：削除ボタンのスタイル ▼▼▼ */
+        .delete-form { display: inline; }
+        .delete-btn {
+            background-color: #ff5252;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            font-size: 12px;
+            border-radius: 3px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        .delete-btn:hover { background-color: #d32f2f; }
+    </style>
 </head>
 <body>
     <header class="header"><h1>💬 授業のコメント</h1></header>
+    
     <main class="main">
-        <p>ここにみんなのコメントが表示されます。</p>
-        <button onclick="window.location.href='{{ url_for('home') }}'">← ホームに戻る</button>
+        <div class="comment-container">
+
+            <div class="flash-messages">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="flash-message flash-{{ category }}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+            </div>
+
+            <section class="comment-form">
+                <h3>✏️ コメントを書く</h3>
+                <form method="POST" action="{{ url_for('comments') }}">
+                    <div class="form-group">
+                        <label for="lesson_select">どの授業について？</label>
+                        <select name="lesson_id" id="lesson_select" required>
+                            <option value="">-- 授業を選択してください --</option>
+                            {% for lesson in lessons %}
+                            <option value="{{ lesson.id }}">
+                                {{ lesson.day_of_week }}{{ lesson.period }}限: {{ lesson.title }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="content">内容</label>
+                        <textarea name="content" id="content" rows="3" placeholder="先生への批判ではなく、授業の改善点などを書きましょう" required></textarea>
+                    </div>
+                    <button type="submit" class="submit-btn">投稿する</button>
+                </form>
+            </section>
+
+            <section>
+                <h3>みんなの投稿一覧</h3>
+                {% if comments %}
+                    <ul class="comment-list">
+                        {% for comment in comments %}
+                        <li class="comment-item">
+                            <div class="comment-header">
+                                <div>
+                                    <span class="class-name">
+                                        {{ lesson_map[comment.lesson_id] if comment.lesson_id in lesson_map else '不明な授業' }}
+                                    </span>
+                                    <span class="date">{{ comment.created_at.strftime('%Y/%m/%d %H:%M') }}</span>
+                                </div>
+
+                                {% if comment.user_id == current_user_id %}
+                                    <form method="POST" action="{{ url_for('delete_comment', comment_id=comment.id) }}" class="delete-form" onsubmit="return confirm('本当に削除しますか？');">
+                                        <button type="submit" class="delete-btn">削除</button>
+                                    </form>
+                                {% endif %}
+                                </div>
+                            <div class="comment-body">{{ comment.content }}</div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p style="text-align:center; color:#888; margin-top:30px;">
+                        まだコメントはありません。<br>あなたが最初のコメントを書いてみませんか？
+                    </p>
+                {% endif %}
+            </section>
+
+            <div style="text-align: center; margin-top: 30px;">
+                <button onclick="window.location.href='{{ url_for('home') }}'" class="icon-button" style="background:#555;">← ホームに戻る</button>
+            </div>
+        </div>
     </main>
 </body>
 </html>
